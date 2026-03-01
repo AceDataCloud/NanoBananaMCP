@@ -8,7 +8,7 @@ from core.client import client
 from core.server import mcp
 from core.utils import format_image_result
 
-NanoBananaModel = Literal["nano-banana", "nano-banana-pro"]
+NanoBananaModel = Literal["nano-banana", "nano-banana-2", "nano-banana-pro"]
 AspectRatio = Literal["1:1", "3:2", "2:3", "16:9", "9:16", "4:3", "3:4"]
 Resolution = Literal["1K", "2K", "4K"]
 
@@ -24,7 +24,7 @@ async def nanobanana_generate_image(
     model: Annotated[
         NanoBananaModel,
         Field(
-            description="Model to use for generation. 'nano-banana' (default, alias of gemini-2.5-flash-image) is faster. 'nano-banana-pro' (alias of gemini-3-pro-image) offers higher quality and supports resolution parameter."
+            description="Model to use for generation. 'nano-banana' (default, alias of gemini-2.5-flash-image) is faster. 'nano-banana-2' is an improved version with better quality. 'nano-banana-pro' (alias of gemini-3-pro-image) offers highest quality and supports resolution parameter."
         ),
     ] = "nano-banana",
     aspect_ratio: Annotated[
@@ -96,7 +96,7 @@ async def nanobanana_edit_image(
     model: Annotated[
         NanoBananaModel,
         Field(
-            description="Model to use for editing. 'nano-banana' (default, alias of gemini-2.5-flash-image) is faster. 'nano-banana-pro' (alias of gemini-3-pro-image) offers higher quality."
+            description="Model to use for editing. 'nano-banana' (default, alias of gemini-2.5-flash-image) is faster. 'nano-banana-2' is an improved version with better quality. 'nano-banana-pro' (alias of gemini-3-pro-image) offers highest quality."
         ),
     ] = "nano-banana",
     callback_url: Annotated[
