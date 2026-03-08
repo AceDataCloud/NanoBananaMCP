@@ -92,7 +92,12 @@ Or if using uv:
   "mcpServers": {
     "nanobanana": {
       "command": "uv",
-      "args": ["run", "--directory", "/path/to/MCPNanoBanana", "mcp-nanobanana-pro"],
+      "args": [
+        "run",
+        "--directory",
+        "/path/to/MCPNanoBanana",
+        "mcp-nanobanana-pro"
+      ],
       "env": {
         "ACEDATACLOUD_API_TOKEN": "your_api_token_here"
       }
@@ -160,16 +165,16 @@ Clients connect with their own Bearer token — the server extracts the token fr
 
 ### Image Generation
 
-| Tool | Description |
-|------|-------------|
+| Tool                        | Description                          |
+| --------------------------- | ------------------------------------ |
 | `nanobanana_generate_image` | Generate an image from a text prompt |
-| `nanobanana_edit_image` | Edit or combine images with AI |
+| `nanobanana_edit_image`     | Edit or combine images with AI       |
 
 ### Tasks
 
-| Tool | Description |
-|------|-------------|
-| `nanobanana_get_task` | Query a single task status |
+| Tool                         | Description                  |
+| ---------------------------- | ---------------------------- |
+| `nanobanana_get_task`        | Query a single task status   |
 | `nanobanana_get_tasks_batch` | Query multiple tasks at once |
 
 ## Usage Examples
@@ -226,12 +231,12 @@ background. Serene and masterful mood.
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `ACEDATACLOUD_API_TOKEN` | API token from AceDataCloud | **Required** |
-| `ACEDATACLOUD_API_BASE_URL` | API base URL | `https://api.acedata.cloud` |
-| `NANOBANANA_REQUEST_TIMEOUT` | Request timeout in seconds | `1800` |
-| `LOG_LEVEL` | Logging level | `INFO` |
+| Variable                     | Description                 | Default                     |
+| ---------------------------- | --------------------------- | --------------------------- |
+| `ACEDATACLOUD_API_TOKEN`     | API token from AceDataCloud | **Required**                |
+| `ACEDATACLOUD_API_BASE_URL`  | API base URL                | `https://api.acedata.cloud` |
+| `NANOBANANA_REQUEST_TIMEOUT` | Request timeout in seconds  | `1800`                      |
+| `LOG_LEVEL`                  | Logging level               | `INFO`                      |
 
 ### Command Line Options
 
