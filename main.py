@@ -174,23 +174,42 @@ Environment Variables:
 
             async def server_card(_request: Request) -> JSONResponse:
                 """MCP Server Card for Smithery and other registries."""
-                return JSONResponse({
-                    "serverInfo": {"name": "MCP NanoBanana"},
-                    "authentication": {"required": True, "schemes": ["bearer"]},
-                    "tools": [
-                    {"name": "nanobanana_generate_image", "description": "Generate image from text"},
-                    {"name": "nanobanana_edit_image", "description": "Edit an existing image"},
-                    {"name": "nanobanana_get_task", "description": "Query task status"},
-                    {"name": "nanobanana_get_tasks_batch", "description": "Query multiple tasks"}
-                    ],
-                    "prompts": [
-                    {"name": "nanobanana_image_generation_guide", "description": "Guide for image generation"},
-                    {"name": "nanobanana_prompt_writing_guide", "description": "Prompt writing guide"},
-                    {"name": "nanobanana_workflow_examples", "description": "Example workflows"}
-                    ],
-                    "resources": [],
-                })
-
+                return JSONResponse(
+                    {
+                        "serverInfo": {"name": "MCP NanoBanana"},
+                        "authentication": {"required": True, "schemes": ["bearer"]},
+                        "tools": [
+                            {
+                                "name": "nanobanana_generate_image",
+                                "description": "Generate image from text",
+                            },
+                            {
+                                "name": "nanobanana_edit_image",
+                                "description": "Edit an existing image",
+                            },
+                            {"name": "nanobanana_get_task", "description": "Query task status"},
+                            {
+                                "name": "nanobanana_get_tasks_batch",
+                                "description": "Query multiple tasks",
+                            },
+                        ],
+                        "prompts": [
+                            {
+                                "name": "nanobanana_image_generation_guide",
+                                "description": "Guide for image generation",
+                            },
+                            {
+                                "name": "nanobanana_prompt_writing_guide",
+                                "description": "Prompt writing guide",
+                            },
+                            {
+                                "name": "nanobanana_workflow_examples",
+                                "description": "Example workflows",
+                            },
+                        ],
+                        "resources": [],
+                    }
+                )
 
             @contextlib.asynccontextmanager
             async def lifespan(_app: Starlette):  # type: ignore[no-untyped-def]
