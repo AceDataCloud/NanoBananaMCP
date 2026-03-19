@@ -1,6 +1,6 @@
 # MCP NanoBanana
 
-<!-- mcp-name: io.github.acedatacloud/mcp-nanobanana-pro -->
+<!-- mcp-name: io.github.AceDataCloud/mcp-nanobanana-pro -->
 
 [![PyPI version](https://img.shields.io/pypi/v/mcp-nanobanana-pro.svg)](https://pypi.org/project/mcp-nanobanana-pro/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/mcp-nanobanana-pro.svg)](https://pypi.org/project/mcp-nanobanana-pro/)
