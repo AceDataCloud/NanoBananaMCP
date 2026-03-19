@@ -25,98 +25,24 @@ Generate and edit AI images directly from Claude, VS Code, or any MCP-compatible
 
 ## Quick Start
 
-### 1. Get API Token
+### 1. Get Your API Token
 
-Get your API token from [AceDataCloud Platform](https://platform.acedata.cloud):
+1. Sign up at [AceDataCloud Platform](https://platform.acedata.cloud)
+2. Go to the [API documentation page](https://platform.acedata.cloud/documents/23985a11-d713-41d1-ad84-24b021805b3d)
+3. Click **"Acquire"** to get your API token
+4. Copy the token for use below
 
-1. Sign up or log in
-2. Navigate to [Nano Banana Images API](https://platform.acedata.cloud/documents/23985a11-d713-41d1-ad84-24b021805b3d)
-3. Click "Acquire" to get your token
+### 2. Use the Hosted Server (Recommended)
 
-### 2. Install
+AceDataCloud hosts a managed MCP server — **no local installation required**.
 
-```bash
-# Clone the repository
-git clone https://github.com/AceDataCloud/MCPNanoBanana.git
-cd MCPNanoBanana
+**Endpoint:** `https://nanobanana.mcp.acedata.cloud/mcp`
 
-# Install with pip
-pip install -e .
+All requests require a Bearer token. Use the API token from Step 1.
 
-# Or with uv (recommended)
-uv pip install -e .
-```
+#### Claude Desktop
 
-### 3. Configure
-
-```bash
-# Copy example environment file
-cp .env.example .env
-
-# Edit with your API token
-echo "ACEDATACLOUD_API_TOKEN=your_token_here" > .env
-```
-
-### 4. Run
-
-```bash
-# Run the server
-mcp-nanobanana-pro
-
-# Or with Python directly
-python main.py
-```
-
-## Claude Desktop Integration
-
-Add to your Claude Desktop configuration:
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "nanobanana": {
-      "command": "mcp-nanobanana-pro",
-      "env": {
-        "ACEDATACLOUD_API_TOKEN": "your_api_token_here"
-      }
-    }
-  }
-}
-```
-
-Or if using uv:
-
-```json
-{
-  "mcpServers": {
-    "nanobanana": {
-      "command": "uv",
-      "args": [
-        "run",
-        "--directory",
-        "/path/to/MCPNanoBanana",
-        "mcp-nanobanana-pro"
-      ],
-      "env": {
-        "ACEDATACLOUD_API_TOKEN": "your_api_token_here"
-      }
-    }
-  }
-}
-```
-
-## Remote HTTP Mode (Hosted)
-
-AceDataCloud hosts a managed MCP server that you can connect to directly — **no local installation required**.
-
-**Endpoint**: `https://nanobanana.mcp.acedata.cloud/mcp`
-
-All requests require a Bearer token in the `Authorization` header. Get your token from [AceDataCloud Platform](https://platform.acedata.cloud).
-
-### Claude Desktop (Remote)
+Add to your config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
 
 ```json
 {
@@ -125,28 +51,56 @@ All requests require a Bearer token in the `Authorization` header. Get your toke
       "type": "streamable-http",
       "url": "https://nanobanana.mcp.acedata.cloud/mcp",
       "headers": {
-        "Authorization": "Bearer your_api_token_here"
+        "Authorization": "Bearer YOUR_API_TOKEN"
       }
     }
   }
 }
 ```
 
-### Cursor / VS Code
+#### Cursor / Windsurf
 
-In your MCP client settings, add:
+Add to your MCP config (`.cursor/mcp.json` or `.windsurf/mcp.json`):
 
-- **Type**: `streamable-http`
-- **URL**: `https://nanobanana.mcp.acedata.cloud/mcp`
-- **Headers**: `Authorization: Bearer your_api_token_here`
+```json
+{
+  "mcpServers": {
+    "nanobanana": {
+      "type": "streamable-http",
+      "url": "https://nanobanana.mcp.acedata.cloud/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_TOKEN"
+      }
+    }
+  }
+}
+```
 
-### JetBrains IDEs
+#### VS Code (Copilot)
 
-Install the [NanoBanana MCP plugin](https://plugins.jetbrains.com/plugin/com.acedatacloud.mcp.nanobanana) from the JetBrains Marketplace, or configure manually:
+Add to your VS Code MCP config (`.vscode/mcp.json`):
+
+```json
+{
+  "servers": {
+    "nanobanana": {
+      "type": "streamable-http",
+      "url": "https://nanobanana.mcp.acedata.cloud/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_TOKEN"
+      }
+    }
+  }
+}
+```
+
+Or install the [Ace Data Cloud MCP extension](https://marketplace.visualstudio.com/items?itemName=acedatacloud.acedatacloud-mcp) for VS Code, which bundles all 11 MCP servers with one-click setup.
+
+#### JetBrains IDEs
 
 1. Go to **Settings → Tools → AI Assistant → Model Context Protocol (MCP)**
-2. Click **Add** and select **HTTP**
-3. Paste this configuration:
+2. Click **Add** → **HTTP**
+3. Paste:
 
 ```json
 {
@@ -154,35 +108,71 @@ Install the [NanoBanana MCP plugin](https://plugins.jetbrains.com/plugin/com.ace
     "nanobanana": {
       "url": "https://nanobanana.mcp.acedata.cloud/mcp",
       "headers": {
-        "Authorization": "Bearer your_api_token_here"
+        "Authorization": "Bearer YOUR_API_TOKEN"
       }
     }
   }
 }
 ```
 
-### cURL Test
+#### cURL Test
 
 ```bash
 # Health check (no auth required)
 curl https://nanobanana.mcp.acedata.cloud/health
 
-# MCP initialize (requires Bearer token)
+# MCP initialize
 curl -X POST https://nanobanana.mcp.acedata.cloud/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer your_api_token_here" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
 ```
 
-### Self-Hosting with Docker
+### 3. Or Run Locally (Alternative)
+
+If you prefer to run the server on your own machine:
 
 ```bash
-docker pull ghcr.io/acedatacloud/mcp-nanobanana:latest
-docker run -p 8000:8000 ghcr.io/acedatacloud/mcp-nanobanana:latest
+# Install from PyPI
+pip install mcp-nanobanana-pro
+# or
+uvx mcp-nanobanana-pro
+
+# Set your API token
+export ACEDATACLOUD_API_TOKEN="your_token_here"
+
+# Run (stdio mode for Claude Desktop / local clients)
+mcp-nanobanana-pro
+
+# Run (HTTP mode for remote access)
+mcp-nanobanana-pro --transport http --port 8000
 ```
 
-Clients connect with their own Bearer token — the server extracts the token from each request's `Authorization` header and uses it for upstream API calls.
+#### Claude Desktop (Local)
+
+```json
+{
+  "mcpServers": {
+    "nanobanana": {
+      "command": "uvx",
+      "args": ["mcp-nanobanana-pro"],
+      "env": {
+        "ACEDATACLOUD_API_TOKEN": "your_token_here"
+      }
+    }
+  }
+}
+```
+
+#### Docker (Self-Hosting)
+
+```bash
+docker pull ghcr.io/acedatacloud/mcp-nanobanana-pro:latest
+docker run -p 8000:8000 ghcr.io/acedatacloud/mcp-nanobanana-pro:latest
+```
+
+Clients connect with their own Bearer token — the server extracts the token from each request's `Authorization` header.
 
 ## Available Tools
 
