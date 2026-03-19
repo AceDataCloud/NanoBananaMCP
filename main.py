@@ -153,7 +153,7 @@ Environment Variables:
                 async def __call__(self, scope, receive, send):  # type: ignore[no-untyped-def]
                     if scope["type"] == "http":
                         path = scope.get("path", "")
-                        if path == "/health":
+                        if path == "/health" or path.startswith("/.well-known/"):
                             await self.app(scope, receive, send)
                             return
                         headers = dict(scope.get("headers", []))
@@ -172,6 +172,26 @@ Environment Variables:
             async def health(_request: Request) -> JSONResponse:
                 return JSONResponse({"status": "ok"})
 
+            async def server_card(_request: Request) -> JSONResponse:
+                """MCP Server Card for Smithery and other registries."""
+                return JSONResponse({
+                    "serverInfo": {"name": "MCP NanoBanana"},
+                    "authentication": {"required": True, "schemes": ["bearer"]},
+                    "tools": [
+                    {"name": "nanobanana_generate_image", "description": "Generate image from text"},
+                    {"name": "nanobanana_edit_image", "description": "Edit an existing image"},
+                    {"name": "nanobanana_get_task", "description": "Query task status"},
+                    {"name": "nanobanana_get_tasks_batch", "description": "Query multiple tasks"}
+                    ],
+                    "prompts": [
+                    {"name": "nanobanana_image_generation_guide", "description": "Guide for image generation"},
+                    {"name": "nanobanana_prompt_writing_guide", "description": "Prompt writing guide"},
+                    {"name": "nanobanana_workflow_examples", "description": "Example workflows"}
+                    ],
+                    "resources": [],
+                })
+
+
             @contextlib.asynccontextmanager
             async def lifespan(_app: Starlette):  # type: ignore[no-untyped-def]
                 async with mcp.session_manager.run():
@@ -184,6 +204,7 @@ Environment Variables:
             app = Starlette(
                 routes=[
                     Route("/health", health),
+                    Route("/.well-known/mcp/server-card.json", server_card),
                     Mount("/", app=mcp.streamable_http_app()),
                 ],
                 lifespan=lifespan,
