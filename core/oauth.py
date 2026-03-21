@@ -277,12 +277,21 @@ class AceDataCloudOAuthProvider:
         return None
 
     async def _get_user_credential(self, jwt_token: str) -> str | None:
-        """Fetch user's first available API credential token from PlatformBackend."""
+        """Fetch or auto-create user's API credential token from PlatformBackend.
+
+        Flow:
+        1. List existing credentials → return first token if found
+        2. List Global Usage applications → use first if found
+        3. If no application, create one (POST /api/v1/applications/)
+        4. Create credential under that application (POST /api/v1/credentials/)
+        """
+        headers = {"Authorization": f"Bearer {jwt_token}"}
         try:
             async with httpx.AsyncClient(timeout=30) as client:
+                # Step 1: Check for existing credentials
                 response = await client.get(
                     f"{settings.platform_base_url}/api/v1/credentials/",
-                    headers={"Authorization": f"Bearer {jwt_token}"},
+                    headers=headers,
                 )
                 if response.status_code == 200:
                     data = response.json()
@@ -291,9 +300,75 @@ class AceDataCloudOAuthProvider:
                         for cred in results:
                             cred_token: str | None = cred.get("token")
                             if cred_token:
-                                logger.info("Found user credential token")
+                                logger.info("Found existing user credential token")
                                 return cred_token
-                logger.warning(f"No credentials found: {response.status_code}")
+
+                # Step 2: No credentials found — auto-provision
+                logger.info("No credentials found, auto-provisioning Application + Credential")
+
+                # Step 2a: Find or create a Global Usage application
+                app_resp = await client.get(
+                    f"{settings.platform_base_url}/api/v1/applications/",
+                    params={
+                        "limit": "10",
+                        "ordering": "-created_at",
+                        "type": "Usage",
+                        "scope": "Global",
+                    },
+                    headers=headers,
+                )
+                application_id: str | None = None
+                if app_resp.status_code == 200:
+                    app_data = app_resp.json()
+                    items = app_data.get("items", app_data.get("results", []))
+                    if isinstance(items, list) and items:
+                        app = items[0]
+                        application_id = app.get("id")
+                        # Check if the app already has a credential
+                        app_creds = app.get("credentials", [])
+                        if isinstance(app_creds, list) and app_creds:
+                            existing_token: str | None = app_creds[0].get("token")
+                            if isinstance(existing_token, str) and existing_token:
+                                logger.info("Found credential in existing application")
+                                return existing_token
+
+                if not application_id:
+                    # Create a new Global Usage application
+                    create_app_resp = await client.post(
+                        f"{settings.platform_base_url}/api/v1/applications/",
+                        headers={**headers, "Content-Type": "application/json"},
+                        json={"type": "Usage", "scope": "Global"},
+                    )
+                    if create_app_resp.status_code in (200, 201):
+                        new_app = create_app_resp.json()
+                        application_id = new_app.get("id")
+                        logger.info(f"Created Global Application: {application_id}")
+                    else:
+                        logger.error(
+                            f"Failed to create application: "
+                            f"{create_app_resp.status_code} {create_app_resp.text}"
+                        )
+                        return None
+
+                # Step 2b: Create a credential under the application
+                cred_resp = await client.post(
+                    f"{settings.platform_base_url}/api/v1/credentials/",
+                    headers={**headers, "Content-Type": "application/json"},
+                    json={"application_id": application_id},
+                )
+                if cred_resp.status_code in (200, 201):
+                    cred_data = cred_resp.json()
+                    new_token: str | None = (
+                        cred_data.get("token") if isinstance(cred_data, dict) else None
+                    )
+                    if isinstance(new_token, str) and new_token:
+                        logger.info("Auto-provisioned new credential token")
+                        return new_token
+                    logger.error("Credential created but no token in response")
+                else:
+                    logger.error(
+                        f"Failed to create credential: {cred_resp.status_code} {cred_resp.text}"
+                    )
         except Exception:
-            logger.exception("Credential fetch error")
+            logger.exception("Credential fetch/provision error")
         return None
