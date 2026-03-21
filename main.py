@@ -192,7 +192,7 @@ Environment Variables:
 
             mcp.settings.stateless_http = True
             mcp.settings.json_response = True
-            mcp.settings.streamable_http_path = "/mcp"
+            mcp.settings.streamable_http_path = "/mc"
 
             # Build routes
             routes: list[Route | Mount] = [
