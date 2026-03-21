@@ -8,7 +8,7 @@ from core.client import client
 from core.server import mcp
 from core.utils import format_image_result
 
-NanoBananaModel = Literal["nano-banana", "nano-banana-2", "nano-banana-pro"]
+NanoBananaModel = Literal["nano-banana", "nano-banana-pro"]
 AspectRatio = Literal["1:1", "3:2", "2:3", "16:9", "9:16", "4:3", "3:4"]
 Resolution = Literal["1K", "2K", "4K"]
 
@@ -24,7 +24,7 @@ async def nanobanana_generate_image(
     model: Annotated[
         NanoBananaModel,
         Field(
-            description="Model to use for generation. 'nano-banana' (default, alias of gemini-2.5-flash-image) is faster. 'nano-banana-2' is an improved version with better quality. 'nano-banana-pro' (alias of gemini-3-pro-image) offers highest quality and supports resolution parameter."
+            description="Model to use for generation. 'nano-banana' (default, alias of gemini-2.5-flash-image) is faster. 'nano-banana-pro' (alias of gemini-3-pro-image) offers highest quality and supports resolution parameter."
         ),
     ] = "nano-banana",
     aspect_ratio: Annotated[
@@ -39,12 +39,6 @@ async def nanobanana_generate_image(
             description="Resolution of the generated image. Options: '1K' (default), '2K', '4K'. Only works with 'nano-banana-pro' model."
         ),
     ] = None,
-    callback_url: Annotated[
-        str,
-        Field(
-            description="Optional webhook URL to receive the result asynchronously. The API will POST the result to this URL when complete."
-        ),
-    ] = "",
 ) -> str:
     """Generate an AI image from a text prompt using Google's Nano Banana model.
 
@@ -72,10 +66,8 @@ async def nanobanana_generate_image(
 
     if resolution:
         payload["resolution"] = resolution
-    if callback_url:
-        payload["callback_url"] = callback_url
 
-    result = await client.generate_image(**payload)
+    result = await client.generate_image_async(**payload)
     return format_image_result(result)
 
 
@@ -96,15 +88,9 @@ async def nanobanana_edit_image(
     model: Annotated[
         NanoBananaModel,
         Field(
-            description="Model to use for editing. 'nano-banana' (default, alias of gemini-2.5-flash-image) is faster. 'nano-banana-2' is an improved version with better quality. 'nano-banana-pro' (alias of gemini-3-pro-image) offers highest quality."
+            description="Model to use for editing. 'nano-banana' (default, alias of gemini-2.5-flash-image) is faster. 'nano-banana-pro' (alias of gemini-3-pro-image) offers highest quality."
         ),
     ] = "nano-banana",
-    callback_url: Annotated[
-        str,
-        Field(
-            description="Optional webhook URL to receive the result asynchronously. The API will POST the result to this URL when complete."
-        ),
-    ] = "",
 ) -> str:
     """Edit or combine images using AI based on a text prompt.
 
@@ -136,8 +122,5 @@ async def nanobanana_edit_image(
         "model": model,
     }
 
-    if callback_url:
-        payload["callback_url"] = callback_url
-
-    result = await client.edit_image(**payload)
+    result = await client.edit_image_async(**payload)
     return format_image_result(result)
