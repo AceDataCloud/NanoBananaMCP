@@ -110,15 +110,11 @@ class AceDataCloudOAuthProvider:
         adc_code = request.query_params.get("code")
 
         if not mcp_state or not adc_code:
-            return JSONResponse(
-                {"error": "Missing state or code parameter"}, status_code=400
-            )
+            return JSONResponse({"error": "Missing state or code parameter"}, status_code=400)
 
         pending = self._pending_auth.pop(mcp_state, None)
         if not pending:
-            return JSONResponse(
-                {"error": "Invalid or expired state"}, status_code=400
-            )
+            return JSONResponse({"error": "Invalid or expired state"}, status_code=400)
 
         try:
             # Exchange AceDataCloud OAuth 2.0 code for JWT (with PKCE)
@@ -282,9 +278,7 @@ class AceDataCloudOAuthProvider:
 
     # --- Internal helpers ---
 
-    async def _exchange_code_for_jwt(
-        self, code: str, code_verifier: str
-    ) -> str | None:
+    async def _exchange_code_for_jwt(self, code: str, code_verifier: str) -> str | None:
         """Exchange AceDataCloud OAuth 2.0 authorization code for JWT."""
         callback_url = f"{settings.server_url}/oauth/callback"
         try:
@@ -303,9 +297,7 @@ class AceDataCloudOAuthProvider:
                     data = response.json()
                     access_token: str | None = data.get("access_token")
                     return access_token
-                logger.error(
-                    f"OAuth token exchange failed: {response.status_code} {response.text}"
-                )
+                logger.error(f"OAuth token exchange failed: {response.status_code} {response.text}")
         except Exception:
             logger.exception("OAuth token exchange error")
         return None
