@@ -33,7 +33,7 @@ Generate and edit AI images directly from Claude, VS Code, or any MCP-compatible
 
 AceDataCloud hosts a managed MCP server — **no local installation required**.
 
-**Endpoint:** `https://nanobanana.mcp.acedata.cloud/mc`
+**Endpoint:** `https://nanobanana.mcp.acedata.cloud/mcp`
 
 All requests require a Bearer token. Use the API token from Step 1.
 
@@ -42,7 +42,7 @@ All requests require a Bearer token. Use the API token from Step 1.
 Connect directly on [Claude.ai](https://claude.ai) with OAuth — **no API token needed**:
 
 1. Go to Claude.ai **Settings → Integrations → Add More**
-2. Enter the server URL: `https://nanobanana.mcp.acedata.cloud/mc`
+2. Enter the server URL: `https://nanobanana.mcp.acedata.cloud/mcp`
 3. Complete the OAuth login flow
 4. Start using the tools in your conversation
 
@@ -55,7 +55,7 @@ Add to your config (`~/Library/Application Support/Claude/claude_desktop_config.
   "mcpServers": {
     "nanobanana": {
       "type": "streamable-http",
-      "url": "https://nanobanana.mcp.acedata.cloud/mc",
+      "url": "https://nanobanana.mcp.acedata.cloud/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_TOKEN"
       }
@@ -73,7 +73,7 @@ Add to your MCP config (`.cursor/mcp.json` or `.windsurf/mcp.json`):
   "mcpServers": {
     "nanobanana": {
       "type": "streamable-http",
-      "url": "https://nanobanana.mcp.acedata.cloud/mc",
+      "url": "https://nanobanana.mcp.acedata.cloud/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_TOKEN"
       }
@@ -91,7 +91,7 @@ Add to your VS Code MCP config (`.vscode/mcp.json`):
   "servers": {
     "nanobanana": {
       "type": "streamable-http",
-      "url": "https://nanobanana.mcp.acedata.cloud/mc",
+      "url": "https://nanobanana.mcp.acedata.cloud/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_TOKEN"
       }
@@ -112,7 +112,7 @@ Or install the [Ace Data Cloud MCP extension](https://marketplace.visualstudio.c
 {
   "mcpServers": {
     "nanobanana": {
-      "url": "https://nanobanana.mcp.acedata.cloud/mc",
+      "url": "https://nanobanana.mcp.acedata.cloud/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_TOKEN"
       }
@@ -128,7 +128,7 @@ Or install the [Ace Data Cloud MCP extension](https://marketplace.visualstudio.c
 curl https://nanobanana.mcp.acedata.cloud/health
 
 # MCP initialize
-curl -X POST https://nanobanana.mcp.acedata.cloud/mc \
+curl -X POST https://nanobanana.mcp.acedata.cloud/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
