@@ -49,7 +49,8 @@ When the user wants to generate or edit images, choose the appropriate tool base
 - User wants status of several tasks at once
 
 ## Important Notes:
-1. Image generation is async - always return the task_id to the user
+1. Image generation is async in MCP - generation tools should return quickly with a task_id
+2. After generate/edit submission, poll with `nanobanana_get_task` until the final image URLs are available
 2. Detailed prompts produce better results
 3. Include: subject, atmosphere, lighting, camera style, quality keywords
 4. For edit operations, image_urls must be publicly accessible
@@ -117,18 +118,18 @@ def nanobanana_workflow_examples() -> str:
 ## Workflow 1: Simple Image Generation
 1. User: "Create an image of a sunset over mountains"
 2. Call `nanobanana_generate_image(prompt="Breathtaking sunset over mountain range, dramatic orange and purple sky, alpine peaks, landscape photography, wide-angle lens, HDR, golden hour lighting")`
-3. Return task_id to user
-4. User can check status with `nanobanana_get_task(task_id)`
+3. Return the task_id from the submission response
+4. Poll with `nanobanana_get_task(task_id)` until the final image URLs are available
 
 ## Workflow 2: Virtual Try-On
 1. User provides: person photo URL + clothing photo URL
 2. Call `nanobanana_edit_image(prompt="Let this person wear this clothing naturally", image_urls=[person_url, clothing_url])`
-3. Return task_id and wait for result
+3. Poll with `nanobanana_get_task(task_id)` for the completed edit result
 
 ## Workflow 3: Product Photography
 1. User has a product on white background
 2. Call `nanobanana_edit_image(prompt="Place this product in a luxurious marble bathroom setting, soft natural lighting", image_urls=[product_url])`
-3. Return professional product scene
+3. Poll with `nanobanana_get_task(task_id)` for the completed scene
 
 ## Workflow 4: Batch Image Generation
 1. Generate multiple variations

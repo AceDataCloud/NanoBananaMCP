@@ -1,6 +1,5 @@
 """HTTP client for NanoBanana API."""
 
-import asyncio
 import contextvars
 import json
 from typing import Any
@@ -13,11 +12,6 @@ from core.exceptions import NanoBananaAPIError, NanoBananaAuthError, NanoBananaT
 
 # Async mode callback URL placeholder — the upstream worker ignores callback failures
 _ASYNC_CALLBACK_URL = "https://api.acedata.cloud/health"
-
-# Polling settings
-_POLL_INITIAL_DELAY = 5.0  # seconds to wait before first poll
-_POLL_INTERVAL = 3.0  # seconds between polls
-_POLL_TIMEOUT = 600.0  # max seconds to poll (10 minutes)
 
 # Context variable for per-request API token (used in HTTP/remote mode)
 _request_api_token: contextvars.ContextVar[str | None] = contextvars.ContextVar(
@@ -65,6 +59,13 @@ class NanoBananaClient:
             "authorization": f"Bearer {token}",
             "content-type": "application/json",
         }
+
+    def _with_async_callback(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Ensure long-running media operations are submitted asynchronously."""
+        request_payload = dict(payload)
+        if not request_payload.get("callback_url"):
+            request_payload["callback_url"] = _ASYNC_CALLBACK_URL
+        return request_payload
 
     async def request(
         self,
@@ -170,56 +171,12 @@ class NanoBananaClient:
         return await self.request("/nano-banana/tasks", kwargs)
 
     async def generate_image_async(self, **kwargs: Any) -> dict[str, Any]:
-        """Generate image in async mode: submit task, poll for completion, return result.
-
-        This avoids the synchronous blocking call that can timeout in MCP clients.
-        The flow is: submit with callback_url → get task_id immediately → poll tasks API.
-        """
-        # Force async mode by setting callback_url
-        kwargs["callback_url"] = _ASYNC_CALLBACK_URL
-        submit_result = await self.generate_image(**kwargs)
-        task_id = submit_result.get("task_id")
-        if not task_id:
-            return submit_result
-        return await self._poll_task(task_id)
+        """Generate image in async mode and return the submission response immediately."""
+        return await self.generate_image(**self._with_async_callback(kwargs))
 
     async def edit_image_async(self, **kwargs: Any) -> dict[str, Any]:
-        """Edit image in async mode: submit task, poll for completion, return result."""
-        kwargs["callback_url"] = _ASYNC_CALLBACK_URL
-        submit_result = await self.edit_image(**kwargs)
-        task_id = submit_result.get("task_id")
-        if not task_id:
-            return submit_result
-        return await self._poll_task(task_id)
-
-    async def _poll_task(self, task_id: str) -> dict[str, Any]:
-        """Poll task status until completion or timeout."""
-        logger.info(f"Polling task {task_id} (timeout: {_POLL_TIMEOUT}s)")
-        await asyncio.sleep(_POLL_INITIAL_DELAY)
-
-        elapsed = _POLL_INITIAL_DELAY
-        while elapsed < _POLL_TIMEOUT:
-            result = await self.query_task(id=task_id, action="retrieve")
-            response = result.get("response", {})
-            data = response.get("data", [])
-
-            # Check if task has completed (has image URLs)
-            if response.get("success") and data:
-                has_images = any(item.get("image_url") for item in data if isinstance(item, dict))
-                if has_images:
-                    logger.success(f"Task {task_id} completed with images")
-                    return result
-
-            # Check for error in response
-            if result.get("error"):
-                logger.error(f"Task {task_id} failed: {result.get('error')}")
-                return result
-
-            logger.debug(f"Task {task_id} still processing, waiting {_POLL_INTERVAL}s...")
-            await asyncio.sleep(_POLL_INTERVAL)
-            elapsed += _POLL_INTERVAL
-
-        raise NanoBananaTimeoutError(f"Task {task_id} did not complete within {_POLL_TIMEOUT}s")
+        """Edit image in async mode and return the submission response immediately."""
+        return await self.edit_image(**self._with_async_callback(kwargs))
 
 
 # Global client instance
