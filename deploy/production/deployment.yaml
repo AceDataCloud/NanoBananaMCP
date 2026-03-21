@@ -31,6 +31,8 @@ spec:
           env:
             - name: MCP_SERVER_URL
               value: "https://nanobanana.mcp.acedata.cloud"
+            - name: ACEDATACLOUD_OAUTH_CLIENT_ID
+              value: "eLYcardtAh_fYXvydWV3wwaPpZeCrkYskmCyetsfX3c"
           resources:
             limits:
               cpu: 500m
