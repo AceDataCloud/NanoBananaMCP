@@ -354,4 +354,11 @@ jobs:
             echo "JETBRAINS_MARKETPLACE_TOKEN not set, skipping publish"
             exit 0
           fi
-          ./gradlew publishPlugin
+          OUTPUT=$(./gradlew publishPlugin 2>&1) && echo "$OUTPUT" || {
+            echo "$OUTPUT"
+            if echo "$OUTPUT" | grep -q "already contains version"; then
+              echo "Version already published, skipping"
+              exit 0
+            fi
+            exit 1
+          }
