@@ -1,20 +1,24 @@
 """OAuth 2.1 provider for AceDataCloud MCP servers.
 
 Implements the MCP SDK's OAuthAuthorizationServerProvider interface,
-delegating user authentication to AceDataCloud's AuthBackend.
+delegating user authentication to AceDataCloud's OAuth 2.0 Authorization Server.
 
 Flow:
 1. Claude.ai redirects user to /authorize
-2. MCP server redirects to auth.acedata.cloud login
-3. User logs in, auth redirects back to /oauth/callback with code
-4. MCP server exchanges code for JWT, fetches user's API credential
-5. Issues the credential token as the OAuth access_token
-6. Claude uses this token for all subsequent MCP requests
+2. MCP server redirects to auth.acedata.cloud/oauth2/authorize (consent page)
+3. User logs in (if needed), sees consent page, approves
+4. auth.acedata.cloud issues an authorization code, redirects to /oauth/callback
+5. MCP server exchanges code for JWT via POST /oauth2/token (with PKCE)
+6. MCP server uses JWT to fetch/create user's API credential
+7. Issues the credential token as the OAuth access_token
+8. Claude uses this token for all subsequent MCP requests
 """
 
+import base64
+import hashlib
 import secrets
 import time
-from urllib.parse import quote, urlencode
+from urllib.parse import urlencode
 
 import httpx
 from loguru import logger
@@ -60,9 +64,15 @@ class AceDataCloudOAuthProvider:
     async def authorize(
         self, client: OAuthClientInformationFull, params: AuthorizationParams
     ) -> str:
-        """Redirect user to AceDataCloud login page."""
+        """Redirect user to AceDataCloud OAuth 2.0 consent page."""
         # Generate state key for tracking this auth flow
         mcp_state = secrets.token_urlsafe(32)
+
+        # Generate PKCE pair for auth.acedata.cloud token exchange
+        code_verifier = secrets.token_urlsafe(48)
+        digest = hashlib.sha256(code_verifier.encode("ascii")).digest()
+        auth_code_challenge = base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
+
         self._pending_auth[mcp_state] = {
             "client_id": client.client_id,
             "redirect_uri": str(params.redirect_uri),
@@ -71,36 +81,45 @@ class AceDataCloudOAuthProvider:
             "redirect_uri_provided_explicitly": params.redirect_uri_provided_explicitly,
             "scopes": params.scopes,
             "resource": params.resource,
+            "auth_code_verifier": code_verifier,
         }
 
-        # Build callback URL with mcp_state
-        callback_url = f"{settings.server_url}/oauth/callback?mcp_state={mcp_state}"
+        # Build callback URL
+        callback_url = f"{settings.server_url}/oauth/callback"
 
-        # Redirect to AceDataCloud auth login
-        auth_login_url = (
-            f"{settings.auth_base_url}/auth/login?redirect={quote(callback_url, safe='')}"
-        )
-        logger.info(f"OAuth authorize: redirecting to AceDataCloud auth (mcp_state={mcp_state})")
-        return auth_login_url
+        # Build OAuth 2.0 authorize URL
+        auth_params = {
+            "client_id": settings.oauth_client_id,
+            "redirect_uri": callback_url,
+            "response_type": "code",
+            "scope": "profile",
+            "state": mcp_state,
+            "code_challenge": auth_code_challenge,
+            "code_challenge_method": "S256",
+        }
+        auth_url = f"{settings.auth_base_url}/oauth2/authorize?{urlencode(auth_params)}"
+        logger.info(f"OAuth authorize: redirecting to consent page (mcp_state={mcp_state})")
+        return auth_url
 
     async def handle_callback(self, request: Request) -> RedirectResponse | JSONResponse:
-        """Handle the callback from AceDataCloud auth after user login.
+        """Handle the callback from AceDataCloud OAuth 2.0 after user consent.
 
         This is called as a Starlette route handler, not part of the SDK interface.
         """
-        mcp_state = request.query_params.get("mcp_state")
+        mcp_state = request.query_params.get("state")
         adc_code = request.query_params.get("code")
 
         if not mcp_state or not adc_code:
-            return JSONResponse({"error": "Missing mcp_state or code parameter"}, status_code=400)
+            return JSONResponse({"error": "Missing state or code parameter"}, status_code=400)
 
         pending = self._pending_auth.pop(mcp_state, None)
         if not pending:
-            return JSONResponse({"error": "Invalid or expired mcp_state"}, status_code=400)
+            return JSONResponse({"error": "Invalid or expired state"}, status_code=400)
 
         try:
-            # Exchange AceDataCloud code for JWT
-            jwt_token = await self._exchange_code_for_jwt(adc_code)
+            # Exchange AceDataCloud OAuth 2.0 code for JWT (with PKCE)
+            code_verifier = pending.get("auth_code_verifier", "")
+            jwt_token = await self._exchange_code_for_jwt(adc_code, code_verifier)
             if not jwt_token:
                 return JSONResponse(
                     {"error": "Failed to exchange authorization code"}, status_code=502
@@ -259,21 +278,28 @@ class AceDataCloudOAuthProvider:
 
     # --- Internal helpers ---
 
-    async def _exchange_code_for_jwt(self, code: str) -> str | None:
-        """Exchange AceDataCloud auth code for JWT via SSO token endpoint."""
+    async def _exchange_code_for_jwt(self, code: str, code_verifier: str) -> str | None:
+        """Exchange AceDataCloud OAuth 2.0 authorization code for JWT."""
+        callback_url = f"{settings.server_url}/oauth/callback"
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 response = await client.post(
-                    f"{settings.auth_base_url}/sso/v1/token",
-                    json={"code": code},
+                    f"{settings.auth_base_url}/oauth2/token",
+                    data={
+                        "grant_type": "authorization_code",
+                        "code": code,
+                        "client_id": settings.oauth_client_id,
+                        "redirect_uri": callback_url,
+                        "code_verifier": code_verifier,
+                    },
                 )
                 if response.status_code == 200:
                     data = response.json()
                     access_token: str | None = data.get("access_token")
                     return access_token
-                logger.error(f"Auth code exchange failed: {response.status_code} {response.text}")
+                logger.error(f"OAuth token exchange failed: {response.status_code} {response.text}")
         except Exception:
-            logger.exception("Auth code exchange error")
+            logger.exception("OAuth token exchange error")
         return None
 
     async def _get_user_credential(self, jwt_token: str) -> str | None:
