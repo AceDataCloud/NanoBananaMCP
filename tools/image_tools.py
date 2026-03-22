@@ -67,7 +67,7 @@ async def nanobanana_generate_image(
     if resolution:
         payload["resolution"] = resolution
 
-    result = await client.generate_image_async(**payload)
+    result = await client.generate_image(**payload)
     return format_image_result(result)
 
 
@@ -122,5 +122,5 @@ async def nanobanana_edit_image(
         "model": model,
     }
 
-    result = await client.edit_image_async(**payload)
+    result = await client.edit_image(**payload)
     return format_image_result(result)

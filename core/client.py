@@ -157,26 +157,18 @@ class NanoBananaClient:
     async def generate_image(self, **kwargs: Any) -> dict[str, Any]:
         """Generate image using the images endpoint."""
         logger.info(f"Generating image with action: {kwargs.get('action', 'generate')}")
-        return await self.request("/nano-banana/images", kwargs)
+        return await self.request("/nano-banana/images", self._with_async_callback(kwargs))
 
     async def edit_image(self, **kwargs: Any) -> dict[str, Any]:
         """Edit image using the images endpoint."""
         logger.info(f"Editing image with prompt: {kwargs.get('prompt', '')[:50]}...")
-        return await self.request("/nano-banana/images", kwargs)
+        return await self.request("/nano-banana/images", self._with_async_callback(kwargs))
 
     async def query_task(self, **kwargs: Any) -> dict[str, Any]:
         """Query task status using the tasks endpoint."""
         task_id = kwargs.get("id") or kwargs.get("ids", [])
         logger.info(f"Querying task(s): {task_id}")
         return await self.request("/nano-banana/tasks", kwargs)
-
-    async def generate_image_async(self, **kwargs: Any) -> dict[str, Any]:
-        """Generate image in async mode and return the submission response immediately."""
-        return await self.generate_image(**self._with_async_callback(kwargs))
-
-    async def edit_image_async(self, **kwargs: Any) -> dict[str, Any]:
-        """Edit image in async mode and return the submission response immediately."""
-        return await self.edit_image(**self._with_async_callback(kwargs))
 
 
 # Global client instance
