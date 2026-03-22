@@ -121,6 +121,118 @@ Or install the [Ace Data Cloud MCP extension](https://marketplace.visualstudio.c
 }
 ```
 
+
+#### Claude Code
+
+Claude Code supports MCP servers natively:
+
+```bash
+claude mcp add nanobanana --transport http https://nanobanana.mcp.acedata.cloud/mcp \
+  -h "Authorization: Bearer YOUR_API_TOKEN"
+```
+
+Or add to your project's `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "nanobanana": {
+      "type": "streamable-http",
+      "url": "https://nanobanana.mcp.acedata.cloud/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_TOKEN"
+      }
+    }
+  }
+}
+```
+
+#### Cline
+
+Add to Cline's MCP settings (`.cline/mcp_settings.json`):
+
+```json
+{
+  "mcpServers": {
+    "nanobanana": {
+      "type": "streamable-http",
+      "url": "https://nanobanana.mcp.acedata.cloud/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_TOKEN"
+      }
+    }
+  }
+}
+```
+
+#### Amazon Q Developer
+
+Add to your MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "nanobanana": {
+      "type": "streamable-http",
+      "url": "https://nanobanana.mcp.acedata.cloud/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_TOKEN"
+      }
+    }
+  }
+}
+```
+
+#### Roo Code
+
+Add to Roo Code MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "nanobanana": {
+      "type": "streamable-http",
+      "url": "https://nanobanana.mcp.acedata.cloud/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_TOKEN"
+      }
+    }
+  }
+}
+```
+
+#### Continue.dev
+
+Add to `.continue/config.yaml`:
+
+```yaml
+mcpServers:
+  - name: nanobanana
+    type: streamable-http
+    url: https://nanobanana.mcp.acedata.cloud/mcp
+    headers:
+      Authorization: "Bearer YOUR_API_TOKEN"
+```
+
+#### Zed
+
+Add to Zed's settings (`~/.config/zed/settings.json`):
+
+```json
+{
+  "language_models": {
+    "mcp_servers": {
+      "nanobanana": {
+        "url": "https://nanobanana.mcp.acedata.cloud/mcp",
+        "headers": {
+          "Authorization": "Bearer YOUR_API_TOKEN"
+        }
+      }
+    }
+  }
+}
+```
+
 #### cURL Test
 
 ```bash
