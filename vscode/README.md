@@ -40,7 +40,7 @@ You can also manually configure the token in your VS Code settings (`.vscode/mcp
 ## Links
 
 - [PyPI Package](https://pypi.org/project/mcp-nanobanana-pro/)
-- [Source Code](https://github.com/AceDataCloud/MCPNanoBanana)
+- [Source Code](https://github.com/AceDataCloud/NanoBananaMCP)
 - [Ace Data Cloud Platform](https://platform.acedata.cloud)
 - [API Documentation](https://docs.acedata.cloud)
 

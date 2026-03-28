@@ -69,11 +69,11 @@ all = [
 mcp-nanobanana-pro = "main:main"
 
 [project.urls]
-Homepage = "https://github.com/AceDataCloud/MCPNanoBanana"
+Homepage = "https://github.com/AceDataCloud/NanoBananaMCP"
 Documentation = "https://platform.acedata.cloud/documents/23985a11-d713-41d1-ad84-24b021805b3d"
-Repository = "https://github.com/AceDataCloud/MCPNanoBanana"
-Issues = "https://github.com/AceDataCloud/MCPNanoBanana/issues"
-Changelog = "https://github.com/AceDataCloud/MCPNanoBanana/blob/main/CHANGELOG.md"
+Repository = "https://github.com/AceDataCloud/NanoBananaMCP"
+Issues = "https://github.com/AceDataCloud/NanoBananaMCP/issues"
+Changelog = "https://github.com/AceDataCloud/NanoBananaMCP/blob/main/CHANGELOG.md"
 
 [build-system]
 requires = ["hatchling>=1.21.0,<1.30.0"]
