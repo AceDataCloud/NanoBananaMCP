@@ -24,13 +24,13 @@
     "gemini",
     "ai art"
   ],
-  "homepage": "https://github.com/AceDataCloud/MCPNanoBanana",
+  "homepage": "https://github.com/AceDataCloud/NanoBananaMCP",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AceDataCloud/MCPNanoBanana"
+    "url": "https://github.com/AceDataCloud/NanoBananaMCP"
   },
   "bugs": {
-    "url": "https://github.com/AceDataCloud/MCPNanoBanana/issues"
+    "url": "https://github.com/AceDataCloud/NanoBananaMCP/issues"
   },
   "contributes": {
     "mcpServers": {

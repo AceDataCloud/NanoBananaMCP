@@ -1,4 +1,4 @@
-# Copilot Instructions for MCPNanoBanana
+# Copilot Instructions for NanoBananaMCP
 
 ## Sync from Docs
 

@@ -4,7 +4,7 @@
   "description": "MCP server for NanoBanana AI image generation and editing",
   "version": "2026.3.19.7",
   "repository": {
-    "url": "https://github.com/AceDataCloud/MCPNanoBanana",
+    "url": "https://github.com/AceDataCloud/NanoBananaMCP",
     "source": "github"
   },
   "packages": [

@@ -388,8 +388,8 @@ Options:
 
 ```bash
 # Clone repository
-git clone https://github.com/AceDataCloud/MCPNanoBanana.git
-cd MCPNanoBanana
+git clone https://github.com/AceDataCloud/NanoBananaMCP.git
+cd NanoBananaMCP
 
 # Create virtual environment
 python -m venv .venv

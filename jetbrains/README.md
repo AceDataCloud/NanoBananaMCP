@@ -58,7 +58,7 @@ Connects to the hosted MCP server at `nanobanana.mcp.acedata.cloud`. No local in
 - [Ace Data Cloud Platform](https://platform.acedata.cloud)
 - [API Documentation](https://docs.acedata.cloud)
 - [PyPI Package](https://pypi.org/project/mcp-nanobanana-pro/)
-- [Source Code](https://github.com/AceDataCloud/MCPNanoBanana)
+- [Source Code](https://github.com/AceDataCloud/NanoBananaMCP)
 
 ## License
 
